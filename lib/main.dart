@@ -44,12 +44,26 @@ class WelcomeScreen extends StatelessWidget {
                   color: Colors.white),
             ),
             const SizedBox(height: 20),
+            // Logo Container
+            Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              width: 150, // Adjust the size as needed
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/sample-logo.png'), // Change to your logo path
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFA5C9CA),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                minimumSize: const Size(300, 50),
+                    borderRadius: BorderRadius.circular(40)),
+                minimumSize: const Size(100, 50),
               ),
               onPressed: () {
                 Navigator.push(
@@ -57,7 +71,7 @@ class WelcomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               },
-              child: const Text("Log In",
+              child: const Text("Get Started",
                   style: TextStyle(color: Colors.black, fontSize: 18)),
             ),
           ],
@@ -104,8 +118,18 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed: ${e.toString()}")),
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Login Failed"),
+          content: Text("Email or password is incorrect."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Close the dialog
+              child: const Text("OK"),
+            ),
+          ],
+        ),
       );
     }
   }
@@ -114,8 +138,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text("Log In", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF395B64),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: Colors.white, // Back arrow icon
+          onPressed: () {
+            Navigator.pop(context); // Go back to the previous screen
+          },
+        ),
       ),
       backgroundColor: const Color(0xFF2C3333),
       body: Padding(
@@ -123,6 +154,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Text(
+              "Log In",
+              style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            const SizedBox(height: 20),
             TextField(
               controller: emailController,
               decoration: InputDecoration(
@@ -133,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             TextField(
               controller: passwordController,
               obscureText: true,
@@ -145,13 +184,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFA5C9CA),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                minimumSize: const Size(300, 50),
+                    borderRadius: BorderRadius.circular(40)),
+                minimumSize: const Size(100, 50),
               ),
               onPressed: () => loginUser(context), // 🔥 Authenticate User
               child: const Text("Log In",
@@ -170,32 +209,124 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User? user = FirebaseAuth.instance.currentUser; // Get logged-in user
+    User? user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home"),
+        title: const Text("Home", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF395B64),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pop(context);
+            color: Colors.white,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Confirm Logout"),
+                  content: const Text("Are you sure you want to log out?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.pop(context), // Close the dialog
+                      child: const Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.pop(context); // Close the dialog
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen()),
+                          (route) => false, // Removes all previous routes
+                        );
+                      },
+                      child: const Text("Logout"),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ],
       ),
-      body: Center(
-        child: user != null
-            ? Text(
-                "Welcome, ${user.email}",
-                style: const TextStyle(fontSize: 20),
-              )
-            : const Text(
-                "No user logged in",
-                style: TextStyle(fontSize: 20),
-              ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          // Welcome Text
+          Center(
+            child: user != null
+                ? Text(
+                    "Welcome, Admin!",
+                    style: const TextStyle(
+                        fontSize: 40, fontWeight: FontWeight.bold),
+                  )
+                : const Text(
+                    "No user logged in",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+          ),
+          const SizedBox(height: 50),
+          Text("Choose a command:",
+              style: TextStyle(color: Colors.black, fontSize: 18)),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFA5C9CA),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              minimumSize: const Size(300, 50),
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Scanning QR Code"),
+                  content: Text("This is a sample text."),
+                  actions: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.pop(context), // Close the dialog
+                      child: const Text("OK"),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: const Text("Scan QR",
+                style: TextStyle(color: Colors.black, fontSize: 18)),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFA5C9CA),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              minimumSize: const Size(300, 50),
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Scanning Barcode"),
+                  content: Text("This is a sample text."),
+                  actions: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.pop(context), // Close the dialog
+                      child: const Text("OK"),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: const Text("Scan Barcode",
+                style: TextStyle(color: Colors.black, fontSize: 18)),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFFE7F6F2),
     );
