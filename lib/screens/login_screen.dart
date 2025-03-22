@@ -13,6 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthService _authService = AuthService();
+  bool _obscureText = true;
 
   void loginUser() async {
     String email = emailController.text.trim();
@@ -89,13 +90,25 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 15),
             TextField(
               controller: passwordController,
-              obscureText: true,
+              obscureText: _obscureText,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFFE7F6F2),
                 hintText: "Password",
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText =
+                          !_obscureText; // Toggle password visibility
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 15),

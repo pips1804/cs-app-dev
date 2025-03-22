@@ -1,9 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'welcome_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  void _scanCode(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Scan QR Code/Bar Code"),
+        content: SizedBox(
+          width: 300,
+          height: 300,
+          child: MobileScanner(
+            onDetect: (capture) {
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                if (barcode.rawValue != null) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Scanned: ${barcode.rawValue}")),
+                  );
+                }
+              }
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,13 +44,13 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home", style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF395B64),
+        title: const Text("Home"),
+        backgroundColor: const Color(0xFFA5C9CA),
+        foregroundColor: const Color(0xFF2C3333),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            color: Colors.white,
             onPressed: () {
               showDialog(
                 context: context,
@@ -52,76 +85,43 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
           Center(
             child: user != null
                 ? const Text(
                     "Welcome, Admin!",
-                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   )
                 : const Text(
                     "No user logged in",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
           ),
           const SizedBox(height: 50),
-          const Text("Choose a command:",
-              style: TextStyle(color: Colors.black, fontSize: 18)),
-          const SizedBox(height: 10),
-          ElevatedButton(
+          ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFA5C9CA),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              minimumSize: const Size(300, 50),
+                borderRadius: BorderRadius.circular(40),
+              ),
+              minimumSize: const Size(250, 50),
             ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Scanning QR Code"),
-                  content: const Text("This is a sample text."),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("OK"),
-                    ),
-                  ],
-                ),
-              );
-            },
-            child: const Text("Scan QR",
-                style: TextStyle(color: Colors.black, fontSize: 18)),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFA5C9CA),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              minimumSize: const Size(300, 50),
+            onPressed: () => _scanCode(context),
+            icon: const Icon(Icons.qr_code_scanner,
+                color: Colors.black), // Add icon here
+            label: const Text(
+              "Scan QR / Barcode",
+              style: TextStyle(color: Colors.black, fontSize: 18),
             ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Scanning Barcode"),
-                  content: const Text("This is a sample text."),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("OK"),
-                    ),
-                  ],
-                ),
-              );
-            },
-            child: const Text("Scan Barcode",
-                style: TextStyle(color: Colors.black, fontSize: 18)),
-          ),
+          )
         ],
       ),
-      backgroundColor: const Color(0xFFE7F6F2),
+      backgroundColor: const Color(0xFF2C3333),
     );
   }
 }

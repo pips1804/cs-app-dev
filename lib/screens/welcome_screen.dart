@@ -15,15 +15,15 @@ class WelcomeScreen extends StatelessWidget {
             const Text(
               "Let's get started!",
               style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: Colors.white),
             ),
             const SizedBox(height: 20),
             Container(
               margin: const EdgeInsets.only(bottom: 20),
-              width: 150,
-              height: 150,
+              width: 250,
+              height: 250,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(
@@ -32,6 +32,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 30),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFA5C9CA),
