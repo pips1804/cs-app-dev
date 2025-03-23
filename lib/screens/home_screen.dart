@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF2C3333), // Dark background
         title: const Text(
           "Confirm Logout",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Color(0xFFA5C9CA)),
         ),
         content: const Text(
           "Are you sure you want to log out?",

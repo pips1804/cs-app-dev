@@ -110,12 +110,16 @@ class _LoginModalState extends State<LoginModal> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text("Login Failed"),
-          content: const Text("Email or password is incorrect."),
+          backgroundColor: const Color(0xFF2C3333),
+          title: const Text("Login Failed",
+              style: TextStyle(color: Color(0xFFA5C9CA))),
+          content: const Text("Email or password is incorrect.",
+              style: TextStyle(color: Colors.white)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+              child:
+                  const Text("OK", style: TextStyle(color: Color(0xFFA5C9CA))),
             ),
           ],
         ),
