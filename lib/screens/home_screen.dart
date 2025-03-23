@@ -10,7 +10,11 @@ class HomeScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Scan QR Code/Bar Code"),
+        backgroundColor: const Color(0xFF2C3333), // Dark background
+        title: const Text(
+          "Scan QR Code/Bar Code",
+          style: TextStyle(color: Colors.white),
+        ),
         content: SizedBox(
           width: 300,
           height: 300,
@@ -21,7 +25,10 @@ class HomeScreen extends StatelessWidget {
                 if (barcode.rawValue != null) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Scanned: ${barcode.rawValue}")),
+                    SnackBar(
+                      content: Text("Scanned: ${barcode.rawValue}"),
+                      backgroundColor: const Color(0xFFA5C9CA), // Light color
+                    ),
                   );
                 }
               }
@@ -31,7 +38,45 @@ class HomeScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Close"),
+            child:
+                const Text("Close", style: TextStyle(color: Color(0xFFA5C9CA))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2C3333), // Dark background
+        title: const Text(
+          "Confirm Logout",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          "Are you sure you want to log out?",
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel",
+                style: TextStyle(color: Color(0xFFA5C9CA))),
+          ),
+          TextButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text("Logout",
+                style: TextStyle(color: Color(0xFFA5C9CA))),
           ),
         ],
       ),
@@ -51,34 +96,7 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Confirm Logout"),
-                  content: const Text("Are you sure you want to log out?"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel"),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        await FirebaseAuth.instance.signOut();
-                        Navigator.pop(context);
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const WelcomeScreen()),
-                          (route) => false,
-                        );
-                      },
-                      child: const Text("Logout"),
-                    ),
-                  ],
-                ),
-              );
-            },
+            onPressed: () => _showLogoutDialog(context),
           ),
         ],
       ),
@@ -112,8 +130,7 @@ class HomeScreen extends StatelessWidget {
               minimumSize: const Size(250, 50),
             ),
             onPressed: () => _scanCode(context),
-            icon: const Icon(Icons.qr_code_scanner,
-                color: Colors.black), // Add icon here
+            icon: const Icon(Icons.qr_code_scanner, color: Colors.black),
             label: const Text(
               "Scan QR / Barcode",
               style: TextStyle(color: Colors.black, fontSize: 18),
