@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'welcome_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -23,11 +24,49 @@ class HomeScreen extends StatelessWidget {
               final List<Barcode> barcodes = capture.barcodes;
               for (final barcode in barcodes) {
                 if (barcode.rawValue != null) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Scanned: ${barcode.rawValue}"),
-                      backgroundColor: const Color(0xFFA5C9CA), // Light color
+                  String scannedData = barcode.rawValue!;
+                  Navigator.pop(context); // Close scanner
+
+                  // Show the scanned link as a clickable button
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: const Color(0xFF2C3333),
+                      title: const Text(
+                        "Scanned Result",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            scannedData,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 10),
+                          TextButton(
+                            onPressed: () {
+                              // Open the URL in a browser
+                              launchURL(scannedData);
+                            },
+                            child: const Text(
+                              "Open Link",
+                              style: TextStyle(color: Color(0xFFA5C9CA)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            "Close",
+                            style: TextStyle(color: Color(0xFFA5C9CA)),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -44,6 +83,17 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+// Function to launch URL
+  void launchURL(String url) async {
+    Uri uri = Uri.parse(url); // Ensure the URL is properly formatted
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri,
+          mode: LaunchMode.externalApplication); // Opens in browser
+    } else {
+      debugPrint("Could not launch $url");
+    }
   }
 
   void _showLogoutDialog(BuildContext context) {

@@ -97,22 +97,60 @@ class _LoginModalState extends State<LoginModal> {
     });
 
     if (result == null) {
-      Navigator.pop(context); // Close modal before navigating
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
-      // Clear text fields when login fails
-      emailController.clear();
-      passwordController.clear();
-
+      // Show success dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           backgroundColor: const Color(0xFF2C3333),
-          title: const Text("Login Failed",
-              style: TextStyle(color: Color(0xFFA5C9CA))),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: [
+              const Icon(Icons.check_circle,
+                  color: Color(0xFFA5C9CA), size: 30),
+              const SizedBox(width: 10),
+              const Text("Login Successful",
+                  style: TextStyle(color: Color(0xFFA5C9CA))),
+            ],
+          ),
+          content: const Text("Welcome back!",
+              style: TextStyle(color: Colors.white)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close success dialog
+                Navigator.pop(context); // Close login modal
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
+              },
+              child:
+                  const Text("OK", style: TextStyle(color: Color(0xFFA5C9CA))),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // **Clear text fields when login fails**
+      emailController.clear();
+      passwordController.clear();
+
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF2C3333),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: [
+              const Icon(Icons.cancel, color: Colors.redAccent, size: 30),
+              const SizedBox(width: 10),
+              const Text("Login Failed",
+                  style: TextStyle(color: Colors.redAccent)),
+            ],
+          ),
           content: const Text("Email or password is incorrect.",
               style: TextStyle(color: Colors.white)),
           actions: [
