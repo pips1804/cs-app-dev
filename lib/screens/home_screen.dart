@@ -85,7 +85,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-// Function to launch URL
+  // Function to launch URL
   void launchURL(String url) async {
     Uri uri = Uri.parse(url); // Ensure the URL is properly formatted
     if (await canLaunchUrl(uri)) {
@@ -100,33 +100,35 @@ class HomeScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2C3333), // Dark background
+        backgroundColor: const Color(0xFF2C3333),
         title: const Text(
-          "Confirm Logout",
-          style: TextStyle(color: Color(0xFFA5C9CA)),
+          "Logout",
+          style: TextStyle(color: Colors.white),
         ),
         content: const Text(
-          "Are you sure you want to log out?",
+          "Are you sure you want to logout?",
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel",
-                style: TextStyle(color: Color(0xFFA5C9CA))),
+            child: const Text(
+              "Cancel",
+              style: TextStyle(color: Color(0xFFA5C9CA)),
+            ),
           ),
           TextButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Navigator.pop(context);
-              Navigator.pushAndRemoveUntil(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-                (route) => false,
               );
             },
-            child: const Text("Logout",
-                style: TextStyle(color: Color(0xFFA5C9CA))),
+            child: const Text(
+              "Logout",
+              style: TextStyle(color: Color(0xFFA5C9CA)),
+            ),
           ),
         ],
       ),
@@ -135,60 +137,97 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User? user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
+      backgroundColor: const Color(0xFF2C3333),
       appBar: AppBar(
-        title: const Text("Home"),
-        backgroundColor: const Color(0xFFA5C9CA),
-        foregroundColor: const Color(0xFF2C3333),
-        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFF2C3333),
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Color(0xFFA5C9CA)),
             onPressed: () => _showLogoutDialog(context),
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(
-            child: user != null
-                ? const Text(
-                    "Welcome, Admin!",
-                    style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  )
-                : const Text(
-                    "No user logged in",
-                    style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFA5C9CA),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
-          ),
-          const SizedBox(height: 50),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFA5C9CA),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
+                ),
+                onPressed: () => _scanCode(context),
+                child: const Text(
+                  "Scan QR/Barcode",
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
-              minimumSize: const Size(250, 50),
             ),
-            onPressed: () => _scanCode(context),
-            icon: const Icon(Icons.qr_code_scanner, color: Colors.black),
-            label: const Text(
-              "Scan QR / Barcode",
-              style: TextStyle(color: Colors.black, fontSize: 18),
+            const SizedBox(height: 20),
+            const Text(
+              "Our Products",
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          )
-        ],
+            const SizedBox(height: 10),
+            // Dummy products section
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GridView.builder(
+                  itemCount: 6, // Number of dummy products
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 2 products per row
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 0.75, // Aspect ratio of the card
+                  ),
+                  itemBuilder: (context, index) {
+                    return Card(
+                      color: const Color(0xFFA5C9CA),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.shopping_bag,
+                              size: 60, color: Colors.black87),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Product ${index + 1}",
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          const Text(
+                            "\$19.99",
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      backgroundColor: const Color(0xFF2C3333),
     );
   }
 }
