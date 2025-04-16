@@ -137,6 +137,40 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Sample product details for demonstration
+    List<Map<String, String>> products = [
+      {
+        'name': 'Product 1',
+        'price': '\$19.99',
+        'description': 'A great product for your needs!',
+      },
+      {
+        'name': 'Product 2',
+        'price': '\$29.99',
+        'description': 'This product is a must-have!',
+      },
+      {
+        'name': 'Product 3',
+        'price': '\$39.99',
+        'description': 'Perfect for any occasion.',
+      },
+      {
+        'name': 'Product 4',
+        'price': '\$49.99',
+        'description': 'Top quality and performance.',
+      },
+      {
+        'name': 'Product 5',
+        'price': '\$59.99',
+        'description': 'A premium choice for you.',
+      },
+      {
+        'name': 'Product 6',
+        'price': '\$69.99',
+        'description': 'Affordable luxury.',
+      },
+    ];
+
     return Scaffold(
       backgroundColor: const Color(0xFF2C3333),
       appBar: AppBar(
@@ -178,47 +212,110 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            // Dummy products section
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: GridView.builder(
                   itemCount: 6, // Number of dummy products
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 2 products per row
+                    crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
-                    childAspectRatio: 0.75, // Aspect ratio of the card
+                    childAspectRatio: 0.75,
                   ),
                   itemBuilder: (context, index) {
-                    return Card(
-                      color: const Color(0xFFA5C9CA),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.shopping_bag,
-                              size: 60, color: Colors.black87),
-                          const SizedBox(height: 10),
-                          Text(
-                            "Product ${index + 1}",
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                    return GestureDetector(
+                      onTap: () {
+                        // Show product details in modal
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              backgroundColor: const Color(0xFF2C3333),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              title: const Text(
+                                "Product Details",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.shopping_bag,
+                                      size: 60, color: Colors.white70),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    products[index]['name']!,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    products[index]['price']!,
+                                    style: const TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    products[index]['description']!,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text(
+                                    "Close",
+                                    style: TextStyle(color: Color(0xFFA5C9CA)),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Card(
+                        color: const Color(0xFFA5C9CA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.shopping_bag,
+                                size: 60, color: Colors.black87),
+                            const SizedBox(height: 10),
+                            Text(
+                              "Product ${index + 1}",
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 5),
-                          const Text(
-                            "\$19.99",
-                            style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
+                            const SizedBox(height: 5),
+                            const Text(
+                              "\$19.99",
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
