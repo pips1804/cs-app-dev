@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'welcome_screen.dart';
 import 'products/product_model.dart';
+import '../services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<Product>> fetchProducts() async {
     final response = await http.get(
-      Uri.parse('http://192.168.100.28:5000/api/products'),
+      Uri.parse('http://192.168.100.11:5000/api/products'),
     );
 
     if (response.statusCode == 200) {
@@ -55,45 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (barcode.rawValue != null) {
                   String scannedData = barcode.rawValue!;
                   Navigator.pop(context);
-
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: const Color(0xFF2C3333),
-                      title: const Text(
-                        "Scanned Result",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            scannedData,
-                            style: const TextStyle(
-                                color: Colors.white70, fontSize: 16),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: () => launchURL(scannedData),
-                            child: const Text(
-                              "Open Link",
-                              style: TextStyle(color: Color(0xFFA5C9CA)),
-                            ),
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            "Close",
-                            style: TextStyle(color: Color(0xFFA5C9CA)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                  _showQuantityInputDialog(scannedData);
+                  break;
                 }
               }
             },
@@ -110,12 +74,106 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void launchURL(String url) async {
-    Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      debugPrint("Could not launch $url");
+  void _showQuantityInputDialog(String itemNumber) {
+    final quantityController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2C3333),
+        title:
+            const Text("Enter Quantity", style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: quantityController,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: "Enter quantity to add",
+            hintStyle: TextStyle(color: Colors.white54),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white54),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel",
+                style: TextStyle(color: Color(0xFFA5C9CA))),
+          ),
+          TextButton(
+            onPressed: () {
+              final quantity = int.tryParse(quantityController.text);
+              if (quantity != null && quantity > 0) {
+                Navigator.pop(context);
+                _addStock(itemNumber, quantity);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("Please enter a valid quantity")),
+                );
+              }
+            },
+            child: const Text("Add Stock",
+                style: TextStyle(color: Color(0xFFA5C9CA))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addStock(String itemNumber, int quantity) async {
+    final email = AuthService().currentUserEmail;
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.100.11:5000/api/add_stock'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+            {'itemNumber': itemNumber, 'quantity': quantity, 'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final updatedStock = responseData['updated_stock'];
+
+        // Show dialog with updated stock
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: const Color(0xFF2C3333),
+            title: const Text(
+              "Stock Updated",
+              style: TextStyle(color: Colors.white),
+            ),
+            content: Text(
+              "New stock for item $itemNumber: $updatedStock",
+              style: const TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK",
+                    style: TextStyle(color: Color(0xFFA5C9CA))),
+              ),
+            ],
+          ),
+        );
+
+        setState(() {
+          _productsFuture = fetchProducts(); // Refresh product list
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to update stock: ${response.body}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     }
   }
 
@@ -313,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 30,
+                                    fontSize: 18,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
