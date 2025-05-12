@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'welcome_screen.dart';
@@ -26,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<Product>> fetchProducts() async {
     final response = await http.get(
-      Uri.parse('http://192.168.100.11:5000/api/products'),
+      Uri.parse('http://192.168.100.8:5000/api/products'),
     );
 
     if (response.statusCode == 200) {
@@ -129,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final email = AuthService().currentUserEmail;
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.100.11:5000/api/add_stock'),
+        Uri.parse('http://192.168.100.8:5000/api/add_stock'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(
             {'itemNumber': itemNumber, 'quantity': quantity, 'email': email}),
@@ -239,13 +238,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              "Our Products",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Our Products",
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  onPressed: () {
+                    setState(() {
+                      _productsFuture = fetchProducts(); // Re-fetch products
+                    });
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -372,6 +384,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  "Stock: ${product.stock}",
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
