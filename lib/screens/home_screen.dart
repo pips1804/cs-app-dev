@@ -221,78 +221,87 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA5C9CA),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFA5C9CA),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  onPressed: () => _scanCode(context),
+                  child: const Text(
+                    "Scan QR/Barcode",
+                    style: TextStyle(color: Colors.black, fontSize: 16),
                   ),
                 ),
-                onPressed: () => _scanCode(context),
-                child: const Text("Scan QR/Barcode",
-                    style: TextStyle(color: Colors.black)),
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Our Products",
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Our Products",
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.refresh, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _productsFuture = fetchProducts(); // Re-fetch products
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: FutureBuilder<List<Product>>(
-                future: _productsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                        child: CircularProgressIndicator(color: Colors.white));
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error loading products',
-                        style: TextStyle(color: Colors.red[300]),
-                      ),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text("No products available",
-                          style: TextStyle(color: Colors.white)),
-                    );
-                  }
+                  IconButton(
+                    icon: const Icon(Icons.refresh, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        _productsFuture = fetchProducts();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: FutureBuilder<List<Product>>(
+                  future: _productsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error loading products',
+                          style: TextStyle(color: Colors.red[300]),
+                        ),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No products available",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
 
-                  final products = snapshot.data!;
+                    final products = snapshot.data!;
 
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
+                    return GridView.builder(
+                      padding: const EdgeInsets.only(top: 10, bottom: 10),
                       itemCount: products.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        childAspectRatio: 0.75,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 0.72,
                       ),
                       itemBuilder: (context, index) {
                         final product = products[index];
@@ -368,52 +377,59 @@ class _HomeScreenState extends State<HomeScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.network(
-                                  product.imageFullURL,
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  product.itemName,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.network(
+                                    product.imageFullURL,
+                                    height: 90,
+                                    width: 90,
+                                    fit: BoxFit.cover,
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                Text(
-                                  "Stock: ${product.stock}",
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    product.itemName,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  "₱${product.unitPrice.toStringAsFixed(2)}",
-                                  style: const TextStyle(
-                                    color: Colors.black54,
-                                    fontSize: 25,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "Stock: ${product.stock}",
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 12,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "₱${product.unitPrice.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
                       },
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
